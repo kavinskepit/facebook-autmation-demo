@@ -151,6 +151,7 @@ def user_login():
 
             # Allow user to modify the prompt_image
             modified_prompt_image = st.text_area("Modify the Prompt (if needed)", height=100)
+            st.text("Tap here to generate images")
 
             # Update the prompt_image if the user modified it
             if modified_prompt_image:

@@ -60,19 +60,19 @@ def user_login_facebook(username, password):
     #browser = webdriver.Chrome()
 
 
-    #opts = FirefoxOptions()
-    #opts.add_argument("--headless") 
-    #browser = webdriver.Firefox(options=opts)
+    opts = FirefoxOptions()
+    opts.add_argument("--headless") 
+    browser = webdriver.Firefox(options=opts)
 
 
-    #browser.get("http://www.facebook.com")
-    #browser.maximize_window()
-    #username_elem = browser.find_element(By.ID, "email")
-    #password_elem = browser.find_element(By.ID, "pass")
-    #button = browser.find_element(By.CSS_SELECTOR, 'button[data-testid="royal_login_button"]')
-    #username_elem.send_keys(username)
-    #password_elem.send_keys(password)
-    #button.click()
+    browser.get("http://www.facebook.com")
+    browser.maximize_window()
+    username_elem = browser.find_element(By.ID, "email")
+    password_elem = browser.find_element(By.ID, "pass")
+    button = browser.find_element(By.CSS_SELECTOR, 'button[data-testid="royal_login_button"]')
+    username_elem.send_keys(username)
+    password_elem.send_keys(password)
+    button.click()
     st.success("Login successful!")
     #input_text=st.text_input("Enter content key words ")
 
@@ -118,6 +118,7 @@ def user_login():
         print("generated prompt for image generation")
         print(prompt_image)
 
+       
 
 
         #image generating api
@@ -142,51 +143,130 @@ def user_login():
         for i, image_url in enumerate(image_urls):
             st.image(image_url, caption=f'Image {i + 1}', use_column_width=True, width=200)
 
-        # Allow user to input the image index they want to choose
-        selected_image_index = st.text_input("Enter the image you want to choose (e.g., 1)")
+        change_prompt = st.text_input("Do you want to modify the  prompt?  if yes enter y and hit enter else go to choosing image",key="change_prompt")
+        if change_prompt == "y":
+            # Section to display and modify the prompt_image
+            st.subheader("Generated Prompt for Image Generation")
+            st.text_area("Prompt for Image Generation", value=prompt_image, height=100)
+
+            # Allow user to modify the prompt_image
+            modified_prompt_image = st.text_area("Modify the Prompt (if needed)", height=100)
+
+            # Update the prompt_image if the user modified it
+            if modified_prompt_image:
+                prompt_image = modified_prompt_image
+                 # Allow user to input the image index they want to choose
+                st.text("Generating modified  images")
+                api_key = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImZkN2M2ZGI3NWUxZTRjODViYTg0NzdiNWYzMWU4MTM2IiwiY3JlYXRlZF9hdCI6IjIwMjMtMTItMTNUMTQ6NTQ6MTYuMDM0Mzc3In0.mE2K3F3RlvaQD4PHZ6tb_37ACu4-wLR-FUTZZCDH0Ro'  # Your API key here
+                monster_client = client(api_key)
+                model = 'sdxl-base'
+                #prompt = input_text
+                input_data = {
+                    'prompt': prompt_image,
+                    'negprompt': 'unreal, fake, meme, joke, disfigured, poor quality, bad, ugly, text, letters, numbers, humans',
+                    'samples': 2,
+                    'steps': 50,
+                    'aspect_ratio': 'square',
+                    'guidance_scale': 7.5,
+                    'seed': 2414,
+                }
+                result = monster_client.generate(model, input_data)
+
+                image_urls = result['output']
+
+                # Display all images with buttons
+                for i, image_url in enumerate(image_urls):
+                    st.image(image_url, caption=f'Image {i + 1}', use_column_width=True, width=200)
+                selected_image_index = st.text_input("Enter the image you want to choose (e.g., 1)",key="selected image")
+                
+
+                #select the caption
+                print("input text for caption")
+                print(input_text)
+                api_key = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImZkN2M2ZGI3NWUxZTRjODViYTg0NzdiNWYzMWU4MTM2IiwiY3JlYXRlZF9hdCI6IjIwMjMtMTItMTNUMTQ6NTQ6MTYuMDM0Mzc3In0.mE2K3F3RlvaQD4PHZ6tb_37ACu4-wLR-FUTZZCDH0Ro'  # Your API key here
+                monster_client = client(api_key)
+                model = 'falcon-7b-instruct'
+                input_data = {
+                    'prompt': "create a facebook post for" + input_text + "and add relevant tags",
+                    'top_k': 15,
+                    'top_p': 0.5,
+                    'temp': 0.99,
+                    'max_length': 256,
+                    'beam_size': 1,
+                    'system_prompt': "act as a social media marketer  lead for restaurant  and creates marketing contnent for facebook pages as per user needs and do not give give placeholders and write content for 250 words",
+                            }
+                result = monster_client.generate(model, input_data)
+                print("generated caption")  
+                print(result['text'])
+
+                message = result['text']
+                #print(message)
 
 
-        #select the caption
-        print("input text for caption")
-        print(input_text)
-        api_key = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImZkN2M2ZGI3NWUxZTRjODViYTg0NzdiNWYzMWU4MTM2IiwiY3JlYXRlZF9hdCI6IjIwMjMtMTItMTNUMTQ6NTQ6MTYuMDM0Mzc3In0.mE2K3F3RlvaQD4PHZ6tb_37ACu4-wLR-FUTZZCDH0Ro'  # Your API key here
-        monster_client = client(api_key)
-        model = 'falcon-7b-instruct'
-        input_data = {
-            'prompt': "create a facebook post for" + input_text + "and add relevant tags",
-            'top_k': 15,
-            'top_p': 0.5,
-            'temp': 0.99,
-            'max_length': 256,
-            'beam_size': 1,
-            'system_prompt': "act as a social media marketer  lead for restaurant  and creates marketing contnent for facebook pages as per user needs and do not give give placeholders and write content for 250 words",
-                    }
-        result = monster_client.generate(model, input_data)
-        print("generated caption")  
-        print(result['text'])
+                
+                
 
-        message = result['text']
-        #print(message)
+                # Provide button to choose the specified image
+                if st.checkbox("Choose Image"):
+                    if 1 <= int(selected_image_index) <= len(image_urls):
+                        st.session_state.selected_image_index = int(selected_image_index) - 1
+                        st.session_state.selected_image_url = image_urls[int(selected_image_index) - 1]
+                        st.text(f"Selected Image {selected_image_index}")
+                        st.text('Posting')
+                        access_token = 'EAAVaJXTNldsBOZCmiIci3al49LfjcFOZAKwkWubwMoFhs36HBYLnFkiLVAfZCEtzMYZAYDw96HvaASFpfy2WaCTY0hbfK7xmRSoh0CVK40GrDaARJbCo7WUsMtKdDMOYuZBYb5GEA52bWnRoEHOKtxNbTrUYP2NMvcraATdkPnZClCw63rFt6hg5LnV1ZAf5Lz6g3xZCPs4ZD'  # Your Facebook access token here
+                        page_id = '179897971873271'  # Your Facebook page ID here
+                        message = message
+
+                        # Uncomment the line below if you need to post the image to Facebook
+                        post_to_facebook_demo(access_token, page_id, message, st.session_state.selected_image_url)
+                    else:
+                        st.warning(f"Invalid image index. Please enter a number between 1 and {len(image_urls)}.")
+        else:
+            # Allow user to input the image index they want to choose
+            selected_image_index = st.text_input("Enter the image you want to choose (e.g., 1)",key="seleced image 2")
 
 
-        
-        
+            #select the caption
+            print("input text for caption")
+            print(input_text)
+            api_key = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImZkN2M2ZGI3NWUxZTRjODViYTg0NzdiNWYzMWU4MTM2IiwiY3JlYXRlZF9hdCI6IjIwMjMtMTItMTNUMTQ6NTQ6MTYuMDM0Mzc3In0.mE2K3F3RlvaQD4PHZ6tb_37ACu4-wLR-FUTZZCDH0Ro'  # Your API key here
+            monster_client = client(api_key)
+            model = 'falcon-7b-instruct'
+            input_data = {
+                'prompt': "create a facebook post for" + input_text + "and add relevant tags",
+                'top_k': 15,
+                'top_p': 0.5,
+                'temp': 0.99,
+                'max_length': 256,
+                'beam_size': 1,
+                'system_prompt': "act as a social media marketer  lead for restaurant  and creates marketing contnent for facebook pages as per user needs and do not give give placeholders and write content for 250 words",
+                        }
+            result = monster_client.generate(model, input_data)
+            print("generated caption")  
+            print(result['text'])
 
-        # Provide button to choose the specified image
-        if st.checkbox("Choose Image"):
-            if 1 <= int(selected_image_index) <= len(image_urls):
-                st.session_state.selected_image_index = int(selected_image_index) - 1
-                st.session_state.selected_image_url = image_urls[int(selected_image_index) - 1]
-                st.text(f"Selected Image {selected_image_index}")
-                st.text('Posting')
-                access_token = 'EAAVaJXTNldsBOZCmiIci3al49LfjcFOZAKwkWubwMoFhs36HBYLnFkiLVAfZCEtzMYZAYDw96HvaASFpfy2WaCTY0hbfK7xmRSoh0CVK40GrDaARJbCo7WUsMtKdDMOYuZBYb5GEA52bWnRoEHOKtxNbTrUYP2NMvcraATdkPnZClCw63rFt6hg5LnV1ZAf5Lz6g3xZCPs4ZD'  # Your Facebook access token here
-                page_id = '179897971873271'  # Your Facebook page ID here
-                message = message
+            message = result['text']
+            #print(message)
 
-                # Uncomment the line below if you need to post the image to Facebook
-                post_to_facebook_demo(access_token, page_id, message, st.session_state.selected_image_url)
-            else:
-                st.warning(f"Invalid image index. Please enter a number between 1 and {len(image_urls)}.")
+
+            
+            
+
+            # Provide button to choose the specified image
+            if st.checkbox("Choose Image"):
+                if 1 <= int(selected_image_index) <= len(image_urls):
+                    st.session_state.selected_image_index = int(selected_image_index) - 1
+                    st.session_state.selected_image_url = image_urls[int(selected_image_index) - 1]
+                    st.text(f"Selected Image {selected_image_index}")
+                    st.text('Posting')
+                    access_token = 'EAAVaJXTNldsBOZCmiIci3al49LfjcFOZAKwkWubwMoFhs36HBYLnFkiLVAfZCEtzMYZAYDw96HvaASFpfy2WaCTY0hbfK7xmRSoh0CVK40GrDaARJbCo7WUsMtKdDMOYuZBYb5GEA52bWnRoEHOKtxNbTrUYP2NMvcraATdkPnZClCw63rFt6hg5LnV1ZAf5Lz6g3xZCPs4ZD'  # Your Facebook access token here
+                    page_id = '179897971873271'  # Your Facebook page ID here
+                    message = message
+
+                    # Uncomment the line below if you need to post the image to Facebook
+                    post_to_facebook_demo(access_token, page_id, message, st.session_state.selected_image_url)
+                else:
+                    st.warning(f"Invalid image index. Please enter a number between 1 and {len(image_urls)}.")
 
 
 

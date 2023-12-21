@@ -8,7 +8,7 @@ from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.chrome.options import Options
 import requests
 import os
-import chromedriver_autoinstaller
+#import chromedriver_autoinstaller
 from openai import OpenAI
 
 
